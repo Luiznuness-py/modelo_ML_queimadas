@@ -56,11 +56,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 # ====
 # SYNC DATABASE ENGINE
 # ====
-TO-DO: Refactor _database_url to use this function when creating sync engine in memory
 def get_sync_engine() -> Engine:
     """
     Create synchronous engine.
     """
+    _database_url = settings.get_database_url(
+    async_driver=False, 
+    use_test_db=(settings.ENVIRONMENT.upper() == "TEST")
+    )
     return create_engine(
         _database_url,
         echo=settings.DATABASE_ECHO,
@@ -72,4 +75,4 @@ def get_sync_engine() -> Engine:
 # BASE MODEL
 # ====
 
-Base = DBBase
+Base = Base
