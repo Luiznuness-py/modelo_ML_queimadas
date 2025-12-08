@@ -30,27 +30,29 @@ class Settings(BaseSettings):
     def get_database_url(self, async_driver: bool = True, use_test_db: bool = False) -> URL:
         """
         Build database URL from separate parameters.
-
+        
         Args:
             async_driver: If True, uses asyncpg driver. If False, uses psycopg2.
             use_test_db: If True, uses test database name instead of main database.
-
+        
         Returns:
             str: Complete database URL
         """
-        # Use in-memory SQLite for tests
-        if use_test_db:
+                
+        if use_test_db and async_driver:
             return "sqlite+aiosqlite:///:memory:"
-
-        # Use PostgreSQL for normal operations
+        if use_test_db and not async_driver:
+            return "sqlite:///:memory:"
+        
         driver = "postgresql+asyncpg" if async_driver else "postgresql"
-
+        db_name = self.DB_NAME_TEST if use_test_db else self.DB_NAME
+        
         return URL.create(drivername=driver,
                           username=self.DB_USER,
                           password=self.DB_PASSWORD,
                           host=self.DB_HOST,
                           port=self.DB_PORT,
-                          database=self.DB_NAME)
+                          database=db_name)
         
         
 settings = Settings()
