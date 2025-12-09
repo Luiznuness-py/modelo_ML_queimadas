@@ -1,11 +1,31 @@
+import __main__
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from sqlalchemy.engine.url import URL
 
+
+def get_project_root():
+    p = Path(__file__).resolve()
+    for parent in p.parents:
+        if (parent / "pyproject.toml").exists():
+            root = parent
+            break
+    else:
+        root = Path.cwd()
+            
+    data_dir = root / "data"
+    if not data_dir.exists():
+        print(f"⚠️  Aviso: A pasta 'data/' não foi encontrada em {root}")
+            
+    return root
+
+PROJECT_ROOT = get_project_root()
+
 class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=str(PROJECT_ROOT / '.env'),
         env_file_encoding='utf-8',
         case_sensitive=True,
         extra='ignore'
@@ -25,7 +45,7 @@ class Settings(BaseSettings):
     DB_NAME_TEST: str = Field(default="DBFireAITest", description="Test database name")
     DATABASE_ECHO: bool = Field(default=False, description="Echo SQL queries")
 
-    PATH_ARQUIVOS_CSV: str
+    PATH_ARQUIVOS_CSV: str = Field(default=str(PROJECT_ROOT / "data/"), description="Path to CSV files")
     
     def get_database_url(self, async_driver: bool = True, use_test_db: bool = False) -> URL:
         """

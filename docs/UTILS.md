@@ -1,6 +1,3 @@
-Resolver o problema do arquivo grande no Git:
-
-```markdown
 # Como Remover um Arquivo Grande do Histórico do Git e Fazer Push
 
 Este guia explica como remover um arquivo grande do histórico do seu repositório Git, permitindo que você faça push para plataformas como o GitHub, que têm limites de tamanho de arquivo.
@@ -138,4 +135,15 @@ Se você **precisa** versionar arquivos grandes (acima de 100 MB), a solução c
     ```
 
 Lembre-se que, mesmo usando LFS, você ainda precisaria remover o arquivo do histórico "normal" (Passos 1-4) se ele já foi commitado sem o LFS.
+
+## Atalhos
+
+Rodar o main no terminal e acompanhar os importes
+```sh
+python -X importtime main.py
+```
+
+Rodar o main usando o env do poetry no terminal e acompanhar os importes
+```sh
+poetry run python -X importtime main.py
 ```
