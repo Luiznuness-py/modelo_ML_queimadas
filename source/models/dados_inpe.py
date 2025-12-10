@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped
 
-from modelo_ml_queimadas.models.base_model import BaseModel
+from source.models.base_model import BaseModel
 
 
 class Dados_Inpe(BaseModel):
