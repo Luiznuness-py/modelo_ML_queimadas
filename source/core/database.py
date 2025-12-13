@@ -6,13 +6,13 @@ from typing import AsyncGenerator
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.settings import settings
-from app.models.base_model import Base
+from source.core.settings import settings
+from source.models.base_model import Base
 
 
 # Build database URL from separate parameters
 _database_url = settings.get_database_url(
-    async_driver=True, 
+    async_driver=True,
     use_test_db=(settings.ENVIRONMENT.upper() == "TEST")
 )
 
@@ -38,6 +38,8 @@ AsyncSessionLocal = async_sessionmaker(
 # ====
 # ASYNC DATABASE SESSION
 # ====
+
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     For database sessions.
@@ -61,8 +63,8 @@ def get_sync_engine() -> Engine:
     Create synchronous engine.
     """
     _database_url = settings.get_database_url(
-    async_driver=False, 
-    use_test_db=(settings.ENVIRONMENT.upper() == "TEST")
+        async_driver=False,
+        use_test_db=(settings.ENVIRONMENT.upper() == "TEST")
     )
     return create_engine(
         _database_url,
