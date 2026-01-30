@@ -29,7 +29,7 @@ def init_logging(
     logger = logging.getLogger(settings.APP_NAME)
 
     # Evita logs replicarem no root
-    logger.propagate = True
+    logger.propagate = False
 
     # LIMPAR handlers existentes ANTES de configurar
     logger.handlers.clear()

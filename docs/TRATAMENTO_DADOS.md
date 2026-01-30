@@ -8,3 +8,4 @@ Assim como foi entendi anteriormente ter uma base de dados e passar os dados par
 
 3. A forma mais eficiente acredito que seja abrir os arquivos CSV através de chunks, fazer a tratativa dos dados em cima das chunks e por final adiciona-las no DB. Dessa forma não teremos grandes volumes de dados em memoria e temos uma logica bem definida.
 
+4. Podemos abrir arquivo por arquivo, aplicar o tratamento dos dados em cima do arquivo aberto como DataFreme, e por fim salvar as informações no banco de dados.
