@@ -43,10 +43,10 @@ def verificar_menor_distancia(df_dados_localizados: pd.DataFrame, row:pd.Series)
     for _, rows in df_dados_localizados.iterrows():
 
         distancia[_] = distancia_haversine(
-            lat1=row['Latitude'],
-            lon1=rows['Longitude'],
-            lat2=rows['Latitude'],
-            lon2=row['Longitude'],
+            lat1=float(row['Latitude']),
+            lon1=float(rows['Longitude']),
+            lat2=float(rows['Latitude']),
+            lon2=float(row['Longitude']),
         )
 
     distancia = dict(sorted(distancia.items(), key=lambda x: x[1]))
@@ -63,7 +63,6 @@ def inserir_dados(row: pd.Series, df_dados_localizados: pd.Series, campos_com_er
     
     return row
 
-@_time_run
 def buscar_por_valor(row, df: pd.DataFrame, campos_com_erros: list[str]) -> bool | list:
     
     df_dados_localizados = df.loc[
@@ -90,10 +89,10 @@ def buscar_por_valor(row, df: pd.DataFrame, campos_com_erros: list[str]) -> bool
             return row
             
         distancia = distancia_haversine(
-                lat1=row['Latitude'],
-                lon1=df_dados_localizados['Longitude'].iloc[0],
-                lat2=df_dados_localizados['Latitude'].iloc[0],
-                lon2=row['Longitude'],
+                lat1=float(row['Latitude']),
+                lon1=float(df_dados_localizados['Longitude'].iloc[0]),
+                lat2=float(df_dados_localizados['Latitude'].iloc[0]),
+                lon2=float(row['Longitude']),
         )
 
         if distancia <= 5:
@@ -132,9 +131,14 @@ def carregar_dados(settings: Settings):
     path_resources = Path(settings.PATH_ARQUIVOS_CSV)
     files = list(path_resources.glob("*.csv"))
 
+    df_completo = None
+
     for csv_path in files:
 
         df = pd.read_csv(csv_path, sep=",")
+
+        df['Latitude'] = df['Latitude'].str.replace(',', '.').astype(float)
+        df['Longitude'] = df['Longitude'].str.replace(',', '.').astype(float)
 
         df['Data'] = pd.to_datetime(df['DataHora']).dt.date
 
@@ -157,7 +161,6 @@ def carregar_dados(settings: Settings):
         df_dados_utilizados = df.loc[
             (df['Pais'] == 'Brasil') &
             (df['Bioma'] == 'Amazônia') &
-            (df['Pais'] == 'Brasil') &
             (df[campos_obrigatorios].notnull().all(axis=1)) &
             (df[campos_com_erros] >= 0).all(axis=1)
         ]
@@ -172,11 +175,20 @@ def carregar_dados(settings: Settings):
             buscar_por_valor, 
             axis=1, 
             args=(df_dados_utilizados, campos_com_erros)
+        ).dropna(inplace=True)
+        
+        try:
+            if not df_completo:
+                df_completo = df
+                continue
+        except ValueError:
+            pass
+        
+        pd.concat(
+            [df_completo, df], 
+            join='outer', 
+            ignore_index=True,
+            sort=False
         )
 
-        # Agora eu tenho os dados filtrados e os dados com erros, 
-        # com o datafreme que contém as linhas com erro eu vou 
-        # aplicar a regra para verficar se tem alguma outra linha
-        # no mesmo lugar e no mesmo dia com o valor valido
-
-        print()
+    print()

@@ -1,11 +1,26 @@
 # Estratégia de Ingestão e Tratamento de Dados
 
-Assim como foi entendi anteriormente ter uma base de dados e passar os dados para outra base de dados não é muito viável, então podemos fazer isso de uma forma um pouco diferente. Em vez de pegar os dados e só incluirmos no DB vamos ler os arquivos CSV aplicar as tratativas dos dados que são: mesclagem, classificação e criação de features (podendo ter tratamento dos valores com erro como -999.0), depois de fazer essas tratativas incluir os valores no banco de dados (acredito que essa já seja a ideia inicial mas só pra deixar explicito que vamos seguir dessa forma). Para fazer isso temos que estabelecer quais vão ter as features e target utilizado na criação do modelo para que consigamos criar o DB com a tabela de colunas corretas para armazenar os dados tratados.
+O projeto vai funcionar da seguinte forma:
 
-1. A primeira forma e mais simples é criar um DataFreme geral com pandas, que irá armazenar todos os valores dos arquivos CSV. Abrir cada arquivo CSV e aplicar um .concat no DataFreme geral para no final fazer a tratativa dos dados e incluir os valores no DB.
+Vamos ter os dados que vão se utilizados para criar o modelo de ML.
 
-2. Podemos fazer a mesmo coisa que a anterior só que em vez de abrir um arquivo CSV completo em memoria abrir ele com chuncks e incluir as chunks no arquivo CSV geral com o .concat.
+Esses modelos tem que estar em arquivos .csv.
 
-3. A forma mais eficiente acredito que seja abrir os arquivos CSV através de chunks, fazer a tratativa dos dados em cima das chunks e por final adiciona-las no DB. Dessa forma não teremos grandes volumes de dados em memoria e temos uma logica bem definida.
+A partir desses arquivos, vamos abrir um por um aplicar as tratativa nos dados e salvar somente os dados que serão utilizados em um banco de dados.
 
-4. Podemos abrir arquivo por arquivo, aplicar o tratamento dos dados em cima do arquivo aberto como DataFreme, e por fim salvar as informações no banco de dados.
+A trativa vai seguir o seguinte fluxo:
+
+1. Abrir o arquivo
+
+2. Aplicar um filtro onde vamos pegar somente as linhas que atendam aos seguintes requisitos:
+
+   - Valor da coluna 'Pais' seja igual à 'Brasil';
+   - Valor da coluna 'Bioma' seja igual à 'Amazônia';
+   - Valores das colunas 'FRP', 'DiaSemChuva',  'Precipitacao', 'RiscoFogo', sejam diferente de nulo;
+   - Valores das colunas 'FRP', 'DiaSemChuva',  'Precipitacao', 'RiscoFogo', sejam maior ou igual a 0.
+
+A partir disso vamos ter um DataFreme somente com as colunas validas, com isso vamos pegar esse DataFreme e com base nele excluir as linhas validas do DataFreme geral, deixando um DataFreme com as linhas invalidas.
+
+Vamos aplicar uma trativa em cima desse DataFreme com as linhas invalidas onde vamos percorrer sobre as linhas dele verificar se tem alguma linha dentro do DataFreme com linhas validas que corresponde ao mesmo dia e mesmo municipio do que a linha invalida, se tiver ele verifica a distancia entre os locais, se a distancia for menor ou igual a cinto, ele irá trocar os valores que são igual  à -999 pelo valor da linha valida.
+
+Depois que tivermos o DataFreme com todos os dados tratados e pronto iremos  começar fazer a agregação dos dados, criar a classificação dos dados, criar as features e por fim salvar em um banco de dados.
